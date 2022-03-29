@@ -5,6 +5,10 @@
 #include <math.h>
 
 void sorting(int* arr, int size);
+int get_GCD(int* arr);
+void print_Prime(int min, int max);
+int rm_duplicate(int* arr, int* uniqueArr, int size);
+
 int main(){
 	int inputNum;
 	int Count=0;
@@ -22,6 +26,7 @@ int main(){
 		}
 		
 		int* numList = (int*)malloc(sizeof(int)*inputNum);
+		int* uniqueArr = (int*)malloc(sizeof(int)*inputNum);
 		printf(">> Input the numbers to be processed:\n");
 		
 		for(int i=0; i<inputNum; i++){
@@ -60,8 +65,14 @@ int main(){
 		}
 		
 		sorting(numList, inputNum);
+		int uniqArr_size = rm_duplicate(numList, uniqueArr, inputNum);
 		for(int i=0; i<inputNum; i++){
 			printf("%d ", numList[i]);
+		}
+		printf("\n");
+
+		for(int i=0; i<uniqArr_size; i++){
+			printf("%d ", uniqueArr[i]);
 		}
 		printf("\n");
 
@@ -85,3 +96,32 @@ void sorting(int* arr, int size){
 	}
 	return;
 }
+
+int rm_duplicate(int* arr, int* uniqueArr, int size){
+	int k=0, t=0;
+	for(int i=0; i<size; i++){
+		for(int j=i+1; j<size; j++){
+			if(arr[i] == arr[j]){
+				k=1;
+				break;
+			}
+		}
+		if(k==0){
+			uniqueArr[t++] = arr[i];
+			k=0;
+		}
+		k=0;
+	}
+	return t;
+}
+
+int get_GCD(int* arr){
+	
+}
+
+
+
+void print_Prime(int min, int max){
+
+}
+
