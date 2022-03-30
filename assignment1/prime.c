@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <math.h>
+#include <sys/time.h>
 
 void sorting(int* arr, int size);
-int get_GCD(int* arr);
-void print_Prime(int min, int max);
 int rm_duplicate(int* arr, int* uniqueArr, int size);
+int get_GCD(int a, int b);
+void count_Prime(int min, int max);
 
+int* PrimeTable;
 int main(){
+	struct timeval startTime, endTime;
+	double diffTime;
+
 	int inputNum;
 	int Count=0;
 	char ch;
@@ -26,7 +30,7 @@ int main(){
 		}
 		
 		int* numList = (int*)malloc(sizeof(int)*inputNum);
-		int* uniqueArr = (int*)malloc(sizeof(int)*inputNum);
+		int* uniqueArr = (int*)malloc(sizeof(int)*inputNum); // for removing duplicated #
 		printf(">> Input the numbers to be processed:\n");
 		
 		for(int i=0; i<inputNum; i++){
@@ -64,17 +68,33 @@ int main(){
 			continue;
 		}
 		
+		gettimeofday(&startTime, NULL);
 		sorting(numList, inputNum);
 		int uniqArr_size = rm_duplicate(numList, uniqueArr, inputNum);
-		for(int i=0; i<inputNum; i++){
-			printf("%d ", numList[i]);
-		}
-		printf("\n");
 
-		for(int i=0; i<uniqArr_size; i++){
-			printf("%d ", uniqueArr[i]);
-		}
-		printf("\n");
+		/*** Calculating GCD ***/
+		int GCD = uniqueArr[0];
+		for(int i=1; i<uniqArr_size-1; i++){
+			GCD = get_GCD(GCD, uniqueArr[i]);
+		}		
+		printf("GCD of input number is %d\n\n", GCD);
+		/***********************/
+
+		
+		/*** Counting Prime Number ***/
+		PrimeTable = (int*)malloc(sizeof(int)*uniqueArr[uniqArr_size]);
+		for(int i=0; i<uniqArr_size-1; i++)
+			count_Prime(uniqueArr[i], uniqueArr[i+1]);
+		
+		free(PrimeTable);
+		/*****************************/
+
+
+		/*** Checking Execution time ***/
+		gettimeofday(&endTime, NULL);
+		diffTime = (endTime.tv_sec - startTime.tv_sec) + ((endTime.tv_usec - startTime.tv_usec) / 1000000.0);
+		printf("Total execution time using C is %f seconds!\n", diffTime);
+		/*******************************/
 
 		break;
 	}
@@ -115,13 +135,38 @@ int rm_duplicate(int* arr, int* uniqueArr, int size){
 	return t;
 }
 
-int get_GCD(int* arr){
-	
+int get_GCD(int a, int b){ // a < b
+	int n;
+	while(a!=0){
+		n = b%a;
+		b = a;
+		a = n;
+	}
+	return b;
 }
 
 
 
-void print_Prime(int min, int max){
+void count_Prime(int min, int max){
+	int cnt = 0;
 
+	for(int i=2; i<=max; i++){
+		PrimeTable[i] = 1;
+	}
+
+	for(int i=2; i<=max; i++){
+		if(PrimeTable[i] == 0)
+			continue;
+		for(int j=2*i; j<=max; j+=i)
+			PrimeTable[j] = 0;
+	}
+
+	for(int i=min; i<=max; i++){
+		if(PrimeTable[i] != 0)
+			cnt++;
+	}
+
+	printf("Number of prime numbers between %d, %d: %d\n", min, max, cnt);
+	return;
 }
 
