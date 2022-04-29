@@ -37,8 +37,8 @@ int lookup(char ch);
 void getNonBlank();
 double add(double left, double right);
 double sub(double left, double right);
-double mul(double left, double right);
-double div(double left, double right);
+double mult(double left, double right);
+double divd(double left, double right);
 
 struct token* tokenList[1000];
 char lexeme[BUF_MAX];
@@ -46,7 +46,8 @@ char nextChar;
 int nextToken;
 int charClass;
 int lexLen;
-
+int leftParenCnt;
+int rightParenCnt;
 
 struct token{
 	double value;
@@ -55,49 +56,55 @@ struct token{
 
 int main(){
     while(1){
-        printf(">> ");
-        getChar(); 
-        lex();
-        expr();
-    }
-    exit(0);
+		printf(">> ");
+		getChar(); 
+		lex();
+		expr();
+		if(leftParenCnt != rightParenCnt){
+			printf("Syntax error!!\n");
+			exit(1);
+		}
+	}
+	exit(0);
 }
 
 // <expr> -> <term> {+ <term> | - <term>}
-void expr(double* rslt){
-    printf("enter <expr>\n");
+double expr(void){
     term();
     while(nextToken == ADD_OP || nextToken == SUB_OP){
-        lex();
+        if(nextToken == ADD_OP){
+			
+		}
+		else if(nextToken == SUB_OP){
+
+		}
+		lex();
         term();
     }
-    printf("fin expr()\n");
     return;
 }
 
 // <term> -> <factor> {* <factor> | / <factor>}
-void term(double* rslt){
-    printf("enter <term>\n");
+double term(void){
     factor();
     while(nextToken == MULT_OP || nextToken == DIV_OP){
         lex();
         factor();
     }
-    printf("fin term()\n");
     return;
 }
 
 // <factor> -> [-] ( <number> | (<expr>) )
-void factor(double* rslt){
-    printf("enter <factor>\n");
+double factor(void){
     if(nextToken == SUB_OP)
         lex();
     
     if(nextToken == LEFT_PAREN){
         lex();
         expr();
-        if(nextToken == RIGHT_PAREN)
+        if(nextToken == RIGHT_PAREN){
             lex();
+		}
         else{
             printf("Syntax error!!\n");
             exit(1);
@@ -110,26 +117,40 @@ void factor(double* rslt){
         printf("Syntax error!!\n");
         exit(1);
     }
-    printf("fin factor()\n");
     return;
 }
 
 // <number> -> <digit> {<digit>}
-void number(double* rslt){
-    digit(&rslt);
+double number(){
+    return digit();
 //    while(nextToken == INT_LIT)
 //          digit();
-
-    return;
+//    return;
 }
 
 // <digit> → 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-void digit(double* rslt){
-    lex(&rslt);
+double digit(void){
+    lex();
+	int i=0;
+	int check_ifDigit = 0;
+	do{
+		if(!isdigit(lexeme[i++])){
+			check_ifDigit = 1;
+			break;
+		}
+	}while(lexeme[i] != '\n');
+
+	if(check_ifDigit == 0){ // if lexeme is digit
+		return atof(lexeme);
+	}
+	else{ // if lexeme is not a digit
+
+	}
+
     return;
 }
 
-void lex(double* rslt){
+void lex(void){
     lexLen = 0;
     getNonBlank();
     switch (charClass){
@@ -145,7 +166,6 @@ void lex(double* rslt){
                 addChar();
                 getChar();
             }
-			*rslt = atof(lexeme);
             nextToken = INT_LIT;
             break;
         
@@ -159,19 +179,20 @@ void lex(double* rslt){
             lexeme[0] = 'E';
             lexeme[1] = 'O';
             lexeme[2] = 'F';
-            lexeme[3] = 0;
+            lexeme[3] = '\0';
             break;
 
         default:
             break;
     }
+	printf("lexeme : %s\n", lexeme);
     return;
 }
 
 void addChar(){
     if(lexLen <= BUF_MAX){
         lexeme[lexLen++] = nextChar;
-        lexeme[lexLen] = 0;
+        lexeme[lexLen] = '\0';
     }
     else{
         printf("lexeme is too long\n");
@@ -202,8 +223,8 @@ void getNonBlank(){
 
 int lookup(char ch){
     switch (ch){
-	    case '(':	addChar();	nextToken = LEFT_PAREN;		break;
-	    case ')':	addChar();	nextToken = RIGHT_PAREN;	break;
+	    case '(':	addChar();	nextToken = LEFT_PAREN;		leftParenCnt++;		break;
+	    case ')':	addChar();	nextToken = RIGHT_PAREN;	rightParenCnt++;	break;
 	    case '+':   addChar();	nextToken = ADD_OP;     	break;
 	    case '-':	addChar();	nextToken = SUB_OP;			break;
 	    case '*':	addChar();	nextToken = MULT_OP;		break;
@@ -221,9 +242,9 @@ double add(double left, double right){
 double sub(double left, double right){
 	return left - right;
 }
-double mul(double left, double right){
+double mult(double left, double right){
 	return left * right;
 }
-double div(double left, double right){
+double divd(double left, double right){
 	return left / right;
 }
