@@ -25,11 +25,11 @@
 <digit> → 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 */
 
-void expr();
-void term();
-void factor();
-void number();
-void digit();
+double expr();
+double term();
+double factor();
+double number();
+double digit();
 void lex();
 void addChar();
 void getChar();
@@ -42,112 +42,141 @@ double divd(double left, double right);
 
 struct token* tokenList[1000];
 char lexeme[BUF_MAX];
+char cur_lexeme[BUF_MAX];
 char nextChar;
 int nextToken;
+int token;
 int charClass;
 int lexLen;
 int leftParenCnt;
 int rightParenCnt;
-
-struct token{
-	double value;
-	int tokenType;
-};
+int isFirst = 1;
 
 int main(){
     while(1){
 		printf(">> ");
-		getChar(); 
-		lex();
-		expr();
+		isFirst = 1;
+		double result = expr();
+		printf("left : %d, right : %d\n", leftParenCnt, rightParenCnt);
 		if(leftParenCnt != rightParenCnt){
-			printf("Syntax error!!\n");
+			printf("Syntax error!!(in main)\n");
 			exit(1);
 		}
+		printf("%f\n", result);
+		while(getchar() != '\n')
+			continue;
 	}
 	exit(0);
 }
 
 // <expr> -> <term> {+ <term> | - <term>}
 double expr(void){
-    term();
+//	printf("Enter <expr>\n");
+	double left = term();
+	double rslt = left;
+	double right;
+	int token;
     while(nextToken == ADD_OP || nextToken == SUB_OP){
-        if(nextToken == ADD_OP){
-			
-		}
-		else if(nextToken == SUB_OP){
-
-		}
+		token = nextToken;
 		lex();
-        term();
+		right = term();
+		if(token == ADD_OP){
+			rslt = add(left, right);
+			printf("rslt : %f\n", rslt);
+			left = rslt;
+		}
+		else if(token == SUB_OP){
+			rslt = sub(left, right);
+			printf("rslt : %f\n", rslt);
+			left = rslt;
+		}
     }
-    return;
+//	printf("Exit <expr>\n");
+    return rslt;
 }
 
 // <term> -> <factor> {* <factor> | / <factor>}
 double term(void){
-    factor();
+//	printf("Enter <term>\n");
+
+	double left = factor();
+	double rslt = left;
+	double right;
+	int token;
     while(nextToken == MULT_OP || nextToken == DIV_OP){
-        lex();
-        factor();
+		token = nextToken;
+		lex();
+		right = factor();
+		if(token == MULT_OP){
+			rslt = mult(left, right);
+			printf("rslt : %f\n", rslt);
+			left = rslt;
+		}
+		else if(token == DIV_OP){
+			rslt = divd(left, right);
+			printf("rslt : %f\n", rslt);
+			left = rslt;
+		}
     }
-    return;
+//	printf("Exit <term>\n");
+    return rslt;
 }
 
 // <factor> -> [-] ( <number> | (<expr>) )
 double factor(void){
-    if(nextToken == SUB_OP)
-        lex();
+//	printf("Enter <factor>\n");
+    if(isFirst == 1){
+		isFirst = 0;
+		getChar();
+		lex();
+		if(nextToken != LEFT_PAREN){
+			return number();
+		}
+		else{
+			double exprVal = expr();
+			if(nextToken == RIGHT_PAREN){
+				lex();
+				return exprVal;
+			}
+			else{
+				printf("Syntax error!!(in factor -> left paren1)\n");
+				exit(1);
+			}
+		}
+	}
+//	if(nextToken == SUB_OP)
+//	lex();
     
     if(nextToken == LEFT_PAREN){
         lex();
-        expr();
+        double exprVal = expr();
         if(nextToken == RIGHT_PAREN){
             lex();
 		}
         else{
-            printf("Syntax error!!\n");
+            printf("Syntax error!!(in factor -> left paren2)\n");
             exit(1);
         }
+		return exprVal;
     }
     else if(nextToken == INT_LIT){
-        number();
+        return number();
     }
     else{
-        printf("Syntax error!!\n");
+        printf("Syntax error!!(in factor)\n");
         exit(1);
     }
-    return;
 }
 
 // <number> -> <digit> {<digit>}
 double number(){
     return digit();
-//    while(nextToken == INT_LIT)
-//          digit();
-//    return;
 }
 
 // <digit> → 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 double digit(void){
     lex();
-	int i=0;
-	int check_ifDigit = 0;
-	do{
-		if(!isdigit(lexeme[i++])){
-			check_ifDigit = 1;
-			break;
-		}
-	}while(lexeme[i] != '\n');
-
-	if(check_ifDigit == 0){ // if lexeme is digit
-		return atof(lexeme);
-	}
-	else{ // if lexeme is not a digit
-
-	}
-
-    return;
+	return atof(cur_lexeme);
 }
 
 void lex(void){
@@ -155,7 +184,7 @@ void lex(void){
     getNonBlank();
     switch (charClass){
 		case LETTER:
-			printf("Syntax error!!\n");
+			printf("Syntax error!!(int lex())\n");
 			exit(1);
 			break;
 
@@ -167,6 +196,8 @@ void lex(void){
                 getChar();
             }
             nextToken = INT_LIT;
+			memset(cur_lexeme, '\0', BUF_MAX);
+			strcpy(cur_lexeme, lexeme);
             break;
         
         case UNKNOWN:
