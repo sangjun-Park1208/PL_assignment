@@ -40,7 +40,6 @@ double sub(double left, double right);
 double mult(double left, double right);
 double divd(double left, double right);
 
-struct token* tokenList[1000];
 char lexeme[BUF_MAX];
 char cur_lexeme[BUF_MAX];
 char nextChar;
@@ -50,28 +49,24 @@ int charClass;
 int lexLen;
 int leftParenCnt;
 int rightParenCnt;
-int isFirst = 1;
 
 int main(){
     while(1){
 		printf(">> ");
-		isFirst = 1;
+		getChar();
+		lex();
 		double result = expr();
-		printf("left : %d, right : %d\n", leftParenCnt, rightParenCnt);
 		if(leftParenCnt != rightParenCnt){
-			printf("Syntax error!!(in main)\n");
+			printf("Syntax error!!\n");
 			exit(1);
 		}
 		printf("%f\n", result);
-		while(getchar() != '\n')
-			continue;
 	}
 	exit(0);
 }
 
 // <expr> -> <term> {+ <term> | - <term>}
 double expr(void){
-//	printf("Enter <expr>\n");
 	double left = term();
 	double rslt = left;
 	double right;
@@ -82,22 +77,18 @@ double expr(void){
 		right = term();
 		if(token == ADD_OP){
 			rslt = add(left, right);
-			printf("rslt : %f\n", rslt);
 			left = rslt;
 		}
 		else if(token == SUB_OP){
 			rslt = sub(left, right);
-			printf("rslt : %f\n", rslt);
 			left = rslt;
 		}
     }
-//	printf("Exit <expr>\n");
     return rslt;
 }
 
 // <term> -> <factor> {* <factor> | / <factor>}
 double term(void){
-//	printf("Enter <term>\n");
 
 	double left = factor();
 	double rslt = left;
@@ -109,44 +100,18 @@ double term(void){
 		right = factor();
 		if(token == MULT_OP){
 			rslt = mult(left, right);
-			printf("rslt : %f\n", rslt);
 			left = rslt;
 		}
 		else if(token == DIV_OP){
 			rslt = divd(left, right);
-			printf("rslt : %f\n", rslt);
 			left = rslt;
 		}
     }
-//	printf("Exit <term>\n");
     return rslt;
 }
 
 // <factor> -> [-] ( <number> | (<expr>) )
 double factor(void){
-//	printf("Enter <factor>\n");
-    if(isFirst == 1){
-		isFirst = 0;
-		getChar();
-		lex();
-		if(nextToken != LEFT_PAREN){
-			return number();
-		}
-		else{
-			double exprVal = expr();
-			if(nextToken == RIGHT_PAREN){
-				lex();
-				return exprVal;
-			}
-			else{
-				printf("Syntax error!!(in factor -> left paren1)\n");
-				exit(1);
-			}
-		}
-	}
-//	if(nextToken == SUB_OP)
-//	lex();
-    
     if(nextToken == LEFT_PAREN){
         lex();
         double exprVal = expr();
@@ -154,7 +119,7 @@ double factor(void){
             lex();
 		}
         else{
-            printf("Syntax error!!(in factor -> left paren2)\n");
+            printf("Syntax error!!\n");
             exit(1);
         }
 		return exprVal;
@@ -163,7 +128,7 @@ double factor(void){
         return number();
     }
     else{
-        printf("Syntax error!!(in factor)\n");
+        printf("Syntax error!!\n");
         exit(1);
     }
 }
@@ -175,7 +140,9 @@ double number(){
 
 // <digit> → 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 double digit(void){
-    lex();
+	memset(cur_lexeme, '\0', BUF_MAX);
+	strcpy(cur_lexeme, lexeme);
+	lex();
 	return atof(cur_lexeme);
 }
 
@@ -184,7 +151,7 @@ void lex(void){
     getNonBlank();
     switch (charClass){
 		case LETTER:
-			printf("Syntax error!!(int lex())\n");
+			printf("Syntax error!!\n");
 			exit(1);
 			break;
 
@@ -196,8 +163,6 @@ void lex(void){
                 getChar();
             }
             nextToken = INT_LIT;
-			memset(cur_lexeme, '\0', BUF_MAX);
-			strcpy(cur_lexeme, lexeme);
             break;
         
         case UNKNOWN:
@@ -264,7 +229,6 @@ int lookup(char ch){
     }
     return nextToken;
 }
-
 
 double add(double left, double right){
 	return left + right;
