@@ -15,16 +15,20 @@
 #define DIV_OP 24 // '/'
 #define LEFT_PAREN 25 // '('
 #define RIGHT_PAREN 26 // ')'
+
 #define BUF_MAX 1024
 
-/*
+/*-------------------EBNF----------------------
 <expr> → <term> {+ <term> | - <term>}
 <term> → <factor> {* <factor> | / <factor>}
 <factor> → [ - ] ( <number> | (<expr>) )
 <number> → <digit> {<digit>}
 <digit> → 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+-----------------------------------------------
 */
 
+
+/* 		Prototype		*/
 double expr();
 double term();
 double factor();
@@ -40,6 +44,8 @@ double sub(double left, double right);
 double mult(double left, double right);
 double divd(double left, double right);
 
+
+/*		Global variable		*/
 char lexeme[BUF_MAX];
 char cur_lexeme[BUF_MAX];
 char nextChar;
@@ -60,7 +66,12 @@ int main(){
 			printf("Syntax error!!\n");
 			exit(1);
 		}
-		printf("%f\n", result);
+		if((result-(int)result) == 0){
+			printf("%d\n", (int)result);
+		}
+		else{
+			printf("%f\n", result);
+		}
 	}
 	exit(0);
 }
@@ -112,7 +123,12 @@ double term(void){
 
 // <factor> -> [-] ( <number> | (<expr>) )
 double factor(void){
-    if(nextToken == LEFT_PAREN){
+	int ifUnary = 0;
+	if(nextToken == SUB_OP){
+		ifUnary = 1;
+		lex();
+	}
+	if(nextToken == LEFT_PAREN){
         lex();
         double exprVal = expr();
         if(nextToken == RIGHT_PAREN){
@@ -122,10 +138,16 @@ double factor(void){
             printf("Syntax error!!\n");
             exit(1);
         }
-		return exprVal;
+		if(ifUnary)
+			return -exprVal;
+		else
+			return exprVal;
     }
     else if(nextToken == INT_LIT){
-        return number();
+		if(ifUnary)
+			return -number();
+		else
+        	return number();
     }
     else{
         printf("Syntax error!!\n");
@@ -181,7 +203,7 @@ void lex(void){
         default:
             break;
     }
-	printf("lexeme : %s\n", lexeme);
+//	printf("lexeme : %s\n", lexeme);	// <- for DEBUG
     return;
 }
 
@@ -237,9 +259,11 @@ double add(double left, double right){
 double sub(double left, double right){
 	return left - right;
 }
+
 double mult(double left, double right){
 	return left * right;
 }
+
 double divd(double left, double right){
 	return left / right;
 }
