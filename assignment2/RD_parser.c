@@ -8,7 +8,6 @@
 #define UNKNOWN 99
 
 #define INT_LIT 10
-#define CHAR_LIT 11
 #define ADD_OP 21 // '+'
 #define SUB_OP 22 // '-'
 #define MULT_OP 23 // '*'
