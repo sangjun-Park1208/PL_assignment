@@ -6,7 +6,6 @@ DIGIT = 1
 UNKNOWN = 99
 
 INT_LIT = 10
-CHAR_LIT = 11
 ADD_OP = 21 # '+'
 SUB_OP = 22 # '-'
 MULT_OP = 23 # '*'
