@@ -8,6 +8,7 @@
 #define UNKNOWN 99
 
 #define INT_LIT 10
+#define CHAR_LIT 11
 #define ADD_OP 21 // '+'
 #define SUB_OP 22 // '-'
 #define MULT_OP 23 // '*'
@@ -246,7 +247,8 @@ int lookup(char ch){
 	    case '-':	addChar();	nextToken = SUB_OP;			break;
 	    case '*':	addChar();	nextToken = MULT_OP;		break;
 		case '/':	addChar();  nextToken = DIV_OP;			break;
-	    default:	addChar();	nextToken = EOF;        	break;
+		case '\n':	addChar();	nextToken = EOF;			break;
+	    default:	printf("Syntax error!!\n");				exit(1);
     }
     return nextToken;
 }
