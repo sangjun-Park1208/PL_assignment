@@ -168,11 +168,8 @@ def lookup(ch):
         addChar();  nextToken = MULT_OP;
     elif ch == '/':
         addChar();  nextToken = DIV_OP;
-    elif ch == '\n':
-        addChar();  nextToken = EOF;
     else:
-        print("Syntax error!!")
-        exit()
+        addChar();  nextToken = EOF;
 
     return nextToken
 
@@ -186,7 +183,7 @@ def mult(left, right):
     return left * right
 
 def divd(left, right):
-    left / right
+    return left / right
     
     
 def main():
@@ -209,7 +206,10 @@ def main():
         if leftParenCnt != rightParenCnt:
             print("Syntax error!!");
             exit()
-        print(result)    
+        if(result - int(result) == 0):
+            print(int(result))
+        else:
+            print(result)    
         
 
 if __name__ == '__main__':
