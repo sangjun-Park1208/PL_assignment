@@ -139,21 +139,19 @@ def getChar():
     checkCharCnt += 1
     
     if nextChar != '\n':
-        try:    
-            if nextChar.isalpha():
-                charClass = LETTER
-            elif nextChar.isdigit():
-                charClass = DIGIT
-            else:
-                charClass = UNKNOWN
-        except:
+        if nextChar.isalpha():
             charClass = LETTER
+        elif nextChar.isdigit():
+            charClass = DIGIT
+        else:
+            charClass = UNKNOWN
     else:
+        
         charClass = EOF
     
 def getNonBlank():
     global nextChar
-    while nextChar==' ' and nextChar != '\n':
+    while (nextChar == ' ' or nextChar == '\t' ) and nextChar != '\n':
         getChar()
     
 def lookup(ch):
@@ -170,8 +168,11 @@ def lookup(ch):
         addChar();  nextToken = MULT_OP;
     elif ch == '/':
         addChar();  nextToken = DIV_OP;
-    else:
+    elif ch == '\n':
         addChar();  nextToken = EOF;
+    else:
+        print("Syntax error!!")
+        exit()
 
     return nextToken
 
