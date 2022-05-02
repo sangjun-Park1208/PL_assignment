@@ -202,7 +202,11 @@ public class RD_parser {
             case '-':	addChar();	nextToken = SUB_OP;			break;
             case '*':	addChar();	nextToken = MULT_OP;		break;
             case '/':	addChar();  nextToken = DIV_OP;			break;
-            default:	addChar();	nextToken = EOF;        	break;
+            case '\n':  addChar();  nextToken = EOF;            break;
+            default:
+                System.out.println("Syntax error!!");
+                System.exit(1);
+                break;
         }
         return nextToken;
     }

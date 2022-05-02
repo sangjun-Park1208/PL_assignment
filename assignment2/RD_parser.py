@@ -139,21 +139,19 @@ def getChar():
     checkCharCnt += 1
     
     if nextChar != '\n':
-        try:    
-            if nextChar.isalpha():
-                charClass = LETTER
-            elif nextChar.isdigit():
-                charClass = DIGIT
-            else:
-                charClass = UNKNOWN
-        except:
+        if nextChar.isalpha():
             charClass = LETTER
+        elif nextChar.isdigit():
+            charClass = DIGIT
+        else:
+            charClass = UNKNOWN
     else:
+        
         charClass = EOF
     
 def getNonBlank():
     global nextChar
-    while nextChar==' ' and nextChar != '\n':
+    while (nextChar == ' ' or nextChar == '\t' ) and nextChar != '\n':
         getChar()
     
 def lookup(ch):
@@ -185,7 +183,7 @@ def mult(left, right):
     return left * right
 
 def divd(left, right):
-    left / right
+    return left / right
     
     
 def main():
@@ -208,7 +206,10 @@ def main():
         if leftParenCnt != rightParenCnt:
             print("Syntax error!!");
             exit()
-        print(result)    
+        if(result - int(result) == 0):
+            print(int(result))
+        else:
+            print(result)    
         
 
 if __name__ == '__main__':
