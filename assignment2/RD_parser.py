@@ -109,9 +109,11 @@ def lex():
     elif charClass == DIGIT:
         addChar()
         getChar()
+        getNonBlank()
         while charClass == DIGIT:
             addChar()
             getChar()
+            getNonBlank()
         nextToken = INT_LIT
     elif charClass == UNKNOWN:
         lookup(nextChar)
@@ -200,6 +202,8 @@ def main():
         checkCharCnt = 0
         print('>>', end=' ', flush=True)
         input = list(sys.stdin.readline())
+        if(input[0] == '\n'):
+            continue
         getChar()
         lex()
         result = expr()
