@@ -36,6 +36,8 @@ public class RD_parser {
             String temp = sc.nextLine();
             rd_parser.input = temp + "\n";
             rd_parser.getChar();
+            if(rd_parser.nextChar == '\n')
+                continue;
             rd_parser.lex();
             double result = rd_parser.expr();
             if(rd_parser.leftParenCnt != rd_parser.rightParenCnt){
@@ -149,9 +151,11 @@ public class RD_parser {
             case DIGIT:
                 addChar();
                 getChar();
+                getNonBlank();
                 while (charClass == DIGIT){
                     addChar();
                     getChar();
+                    getNonBlank();
                 }
                 nextToken = INT_LIT;
                 break;
