@@ -60,6 +60,8 @@ int main(){
     while(1){
 		printf(">> ");
 		getChar();
+		if(nextChar == '\n')
+			continue;
 		lex();
 		double result = expr();
 		if(leftParenCnt != rightParenCnt){
@@ -180,9 +182,11 @@ void lex(void){
         case DIGIT:
             addChar();
             getChar();
+			getNonBlank();
             while(charClass == DIGIT){
                 addChar();
                 getChar();
+				getNonBlank();
             }
             nextToken = INT_LIT;
             break;
