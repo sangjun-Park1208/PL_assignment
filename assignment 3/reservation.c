@@ -26,9 +26,9 @@ void new_reservation(char* id);
 void origin_reservation(char* id);
 void add_reservation(char* id, int brNum, int rmNum);
 void print_reservation_info(int brNum, int rmNum);
-void print_user_reservation_info(char* id);
+int print_user_reservation_info(char* id);
 void edit_reservation(char* id);
-void editing_resv(int rrn, char* id, int brNum, int rmNum);
+void editing_resv(int idx, char* id, int brNum, int rmNum);
 void cancel_reservation(char* id);
 
 
@@ -523,12 +523,19 @@ void remove_room(int brNum){
 			rsbuf[strlen(rsbuf)-1] = '\0';
 			argc = split(rsbuf, " ", argv);
 
-			if(strcmp(datenow, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+			if(strcmp(datenow, argv[1]) < 0){
 				if(brNum == atoi(argv[4]) && input1 == atoi(argv[5])){
 					isEmpty = 0;
 					break;
 				}
-			}	
+			}
+			else if(strcmp(datenow, argv[1]) == 0 && lt.tm_hour < atoi(argv[2])){
+				if(brNum == atoi(argv[4]) && input1 == atoi(argv[5])){
+					isEmpty = 0;
+					break;
+				}
+			}
+
 		}	
 		close(fd2);
 
@@ -613,12 +620,22 @@ void remove_branch(void){
 			rsbuf[strlen(rsbuf)-1] = '\0';
 			argc = split(rsbuf, " ", argv);
 
-			if(strcmp(datenow, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+
+			if(strcmp(datenow, argv[1]) < 0){
 				if(brNum == atoi(argv[4])){
 					isEmpty = 0;
 					break;
 				}
-			}	
+			}
+			else if(strcmp(datenow, argv[1]) == 0 && lt.tm_hour < atoi(argv[2])){
+				if(brNum == atoi(argv[4])){
+					isEmpty = 0;
+					break;
+				}
+			}
+
+
+
 		}	
 		close(fd2);
 
@@ -820,7 +837,7 @@ void origin_reservation(char* id){
 }
 
 void edit_reservation(char* id){
-	int fd, rrn, input1, input2;
+	int fd, idx, input1, input2, rrn;
 	
 	if((fd = open(RESV_FILE, O_RDWR)) < 0){
 		fprintf(stderr, "open error in reservation.txt\n");
@@ -829,11 +846,11 @@ void edit_reservation(char* id){
 
 	while(1){
 		system("clear");
-		print_user_reservation_info(id);
+		rrn = print_user_reservation_info(id);
 		printf(" input #Index to edit reservation >> ");
-		rrn = get_input();
+		idx = get_input();
 		
-		if(rrn < 1){
+		if(idx < 1){
 			printf("Wrong input. Index must bigger than 0\n");
 			sleep(1);
 			continue;
@@ -858,6 +875,12 @@ void edit_reservation(char* id){
 				sleep(1);
 				continue;
 			}
+			if(br_isopen[input1-1] != 'o'){
+				printf("It is closed. Try other room.\n");
+				sleep(1);
+				continue;
+			}
+
 
 			while(1){
 				system("clear");
@@ -872,12 +895,18 @@ void edit_reservation(char* id){
 					sleep(1);
 					return;
 				}		
-				if(input1 < 2 || input2 > 5){
+				if(input2 < 1 || input2 > 5){
 					printf("Wrong input. Select (1~5)\n");
 					sleep(1);
 					continue;
 				}
-				editing_resv(rrn, id, input1, input2);
+				if(rm_isopen[input1-1][input2-1] != 'o'){
+					printf("It is closed. Try other room.\n");
+					sleep(1);
+					continue;
+				}
+
+				editing_resv(idx, id, input1, input2);
 				break;
 			}
 			break;
@@ -888,15 +917,20 @@ void edit_reservation(char* id){
 	return;
 }
 
-void editing_resv(int rrn, char* id, int brNum, int rmNum){
-	int fd, input2, input3, input4, argc, chktime, idx;
+void editing_resv(int idx, char* id, int brNum, int rmNum){
+	int fd, input2, input3, input4, argc, chktime, cnt, chk;
 	char* argv[10];
 	char input1[7];
 	char rsbuf[34];
+	char tpbuf[34];
+	char datenow[7];
 	time_t t;
 	struct tm lt;
 
-	while(1){
+	while(1){	
+		t = time(NULL);
+		localtime_r(&t, &lt);
+		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 		system("clear");
 		print_reservation_info(brNum, rmNum);
 		printf("(input \"0\" back to menu)\n");
@@ -913,7 +947,7 @@ void editing_resv(int rrn, char* id, int brNum, int rmNum){
 
 		printf(" input reservation starting time >> ");
 
-		input2 = get_input();
+	 	input2 = get_input();
 
 		if(input2 < 8 || input2 >= 22){
 			printf("Invalid reservation time. Between 08:00 ~ 22:00\n");
@@ -961,22 +995,31 @@ void editing_resv(int rrn, char* id, int brNum, int rmNum){
 		while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
 			rsbuf[strlen(rsbuf)-1] = '\0';
 			argc = split(rsbuf, " ", argv);
-		
+
 			if(!strcmp(resv.ID, argv[0]) && !strcmp(resv.date, argv[1]) && resv.time == atoi(argv[2]) &&
 					resv.usetime == atoi(argv[3]) && resv.branch == atoi(argv[4]) &&
 					resv.room == atoi(argv[5]) && resv.person == atoi(argv[6]))
 				continue;
 
-			if(strcmp(resv.date, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+
+			printf("resv.time : %d\n", resv.time);
+			printf("resv.usetime : %d\n", resv.usetime);
+			printf("atoi(argv[2]) : %d\n", atoi(argv[2]));
+			printf("atoi(argv[3]) : %d\n", atoi(argv[3]));
+			
+			if(strcmp(resv.date, argv[1]) < 0){}
+			else if(strcmp(resv.date, argv[1]) == 0){
 				if(resv.time+resv.usetime <= atoi(argv[2]) || atoi(argv[2])+atoi(argv[3]) <= resv.time){}
 				else{
 					chktime = 0;
 					break;
 				}
-			}	
+			}
+
 		}
 
 		if(chktime == 0){
+			printf("DEBUG>..\n");
 			printf("Invalid reservation(Duplicate time).. Retry reservation\n");
 			close(fd);
 			sleep(1);
@@ -986,8 +1029,26 @@ void editing_resv(int rrn, char* id, int brNum, int rmNum){
 			sprintf(rsbuf, "%10s %6s %02d %02d %02d %02d %02d\n",
 					resv.ID, resv.date, resv.time, resv.usetime, resv.branch, resv.room, resv.person);
 
-			lseek(fd, (rrn-1)*sizeof(rsbuf), SEEK_SET);
+
+			lseek(fd, 0, SEEK_SET);
+			chk = 0;
+			while(read(fd, tpbuf, sizeof(tpbuf)) > 0){
+				tpbuf[strlen(tpbuf)-1] = '\0';
+				argc = split(tpbuf, " ", argv);
+
+				printf("chk : %d, idx : %d\n", chk, idx);
+				sleep(1);
+				if(strcmp(datenow, argv[1]) <= 0){
+					if(!strcmp(id, argv[0])){
+						chk++;
+						if(chk == idx)
+							break;
+					}
+				}
+			}
+			lseek(fd, (chk-1)*sizeof(tpbuf), SEEK_SET);
 			write(fd, rsbuf, sizeof(rsbuf));
+
 			printf("*** Successfully edited ***\n");
 			printf("Back to menu..\n");
 			close(fd);
@@ -1001,14 +1062,47 @@ void editing_resv(int rrn, char* id, int brNum, int rmNum){
 }
 
 void cancel_reservation(char* id){
+/*	int fd, input, rrn;
+	char rsbuf[34];
 	
+	if((fd = open(RESV_FILE, O_RDWR)) < 0){
+		fprintf(stderr, "open error in reservation.txt\n");
+		exit(1);
+	}
+
+	while(1){
+		system("clear");
+		print_user_reservation_info(id);
+		printf(" input #Index to remove reservation >> ");
+		input = get_input();
+		
+		if(input < 0){
+			printf("Invalid #index. Try other #index\n");
+			sleep(1);
+			continue;
+		}
+
+		while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
+			rsbuf[strlen(rsbuf)-1] = '\0';
+			argc = split(rsbuf, " ", argv);
+
+			if()
+
+		}
+		
+	}
+
+
+
+
+	close(fd);*/
 	return;
 }
 
-void print_user_reservation_info(char* id){
+int print_user_reservation_info(char* id){
 	time_t t;
 	struct tm lt;
-	int fd, argc, idx;
+	int fd, argc, idx, rrn;
 	char* argv[10];
 	char rsbuf[34];
 	char datenow[7];
@@ -1025,22 +1119,32 @@ void print_user_reservation_info(char* id){
 	printf("Reservation info - [%s]\n", id);
 	printf("Index #Branch #Room #Person Date	Time	UsingTime\n");
 	idx = 1;
+	rrn = 0;
 	while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
 		rsbuf[strlen(rsbuf)-1] = '\0';
 		argc = split(rsbuf, " ", argv);
-		
-		if(strcmp(datenow, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+
+		if(strcmp(datenow, argv[1]) < 0){
 			if(!strcmp(id, argv[0])){
 				printf(" %d %d %d %d  %6s		%02d:00 ~ %02d:00	%d\n",
 						idx, atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[1],
 						atoi(argv[2]), atoi(argv[2])+atoi(argv[3]), atoi(argv[3]));
 				idx++;
 			}
-		}	
+		}
+		else if(strcmp(datenow, argv[1]) == 0){
+			if(!strcmp(id, argv[0])){
+				printf(" %d %d %d %d  %6s		%02d:00 ~ %02d:00	%d\n",
+						idx, atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[1],
+						atoi(argv[2]), atoi(argv[2])+atoi(argv[3]), atoi(argv[3]));
+				idx++;
+			}
+		}
+		rrn++;
 	}
 	close(fd);
 	printf("------------------------------\n");
-	return;
+	return idx-1;
 }
 
 
@@ -1050,12 +1154,14 @@ void add_reservation(char* id, int brNum, int rmNum){
 	char* argv[10];
 	char input1[7];
 	char rsbuf[34];
+	char datenow[7];
 	time_t t;
 	struct tm lt;
 
 	while(1){
 		t = time(NULL);
 		localtime_r(&t, &lt);
+		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 		system("clear");
 		print_reservation_info(brNum, rmNum);
 		printf("(input \"0\" back to menu)\n");
@@ -1064,6 +1170,12 @@ void add_reservation(char* id, int brNum, int rmNum){
 		fgets(input1, sizeof(input1), stdin);
 		if(strlen(input1) != 6){
 			printf("Invalid reservation date. Format : YYMMDD\n");
+			sleep(1);
+			continue;
+		}
+
+		if(strcmp(datenow, input1) == 0){
+			printf("Invalid input : Same day reservation in not allowed.\n");
 			sleep(1);
 			continue;
 		}
@@ -1120,14 +1232,15 @@ void add_reservation(char* id, int brNum, int rmNum){
 		while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
 			rsbuf[strlen(rsbuf)-1] = '\0';
 			argc = split(rsbuf, " ", argv);
-			
-			if(strcmp(resv.date, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+
+			if(strcmp(resv.date, argv[1]) < 0){}
+			else if(strcmp(resv.date, argv[1]) == 0 && resv.time < atoi(argv[2])){
 				if(resv.time+resv.usetime <= atoi(argv[2]) || atoi(argv[2])+atoi(argv[3]) <= resv.time){}
 				else{
 					chktime = 0;
 					break;
 				}
-			}	
+			}
 		}
 
 		if(chktime == 0){
@@ -1163,7 +1276,6 @@ void print_reservation_info(int brNum, int rmNum){
 	t = time(NULL);
 	localtime_r(&t, &lt);
 	sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
-	sprintf(timenow, "%02d%02d", lt.tm_hour, lt.tm_min);
 
 	printf("[%d] branch - [%d] room reservation list\n", brNum, rmNum);
 	printf("	date		time\n");
@@ -1176,12 +1288,18 @@ void print_reservation_info(int brNum, int rmNum){
 		rsbuf[strlen(rsbuf)-1] = '\0';
 		argc = split(rsbuf, " ", argv);
 
-		if(strcmp(datenow, argv[1]) <= 0 && lt.tm_hour < atoi(argv[2])){ //from today ~ future
+		if(strcmp(datenow, argv[1]) < 0){
 			if(brNum == atoi(argv[4]) && rmNum == atoi(argv[5])){
 				printf("%6s		%02d:00 ~ %02d:00\n", 
 						argv[1], atoi(argv[2]), atoi(argv[2])+atoi(argv[3]));
 			}
-		}			
+		}
+		else if(strcmp(datenow, argv[1]) == 0){
+			if(brNum == atoi(argv[4]) && rmNum == atoi(argv[5])){
+				printf("%6s		%02d:00 ~ %02d:00\n", 
+						argv[1], atoi(argv[2]), atoi(argv[2])+atoi(argv[3]));
+			}
+		}		
 	}
 	printf("\n-------------------------\n");
 	close(fd);
