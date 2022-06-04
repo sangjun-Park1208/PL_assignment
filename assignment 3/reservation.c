@@ -26,10 +26,9 @@ void new_reservation(char* id);
 void origin_reservation(char* id);
 void add_reservation(char* id, int brNum, int rmNum);
 void print_reservation_info(int brNum, int rmNum);
-int print_user_reservation_info(char* id);
+void print_user_reservation_info(char* id);
 void edit_reservation(char* id);
 void editing_resv(int idx, char* id, int brNum, int rmNum);
-void cancel_reservation(char* id);
 
 
 
@@ -122,7 +121,8 @@ int main(){
 
 		system("clear");
 		print_select_mode();
-		printf(" >> ");
+		printf("	---------------------------\n\n");
+		printf("		 >> ");
 		input = get_input();
 		if(input == 1){
 			admin_mode();
@@ -146,33 +146,34 @@ int main(){
 
 
 void print_select_mode(void){
-	printf("Select Mode\n");
-	printf("1. Admin mode\n");
-	printf("2. User mode\n");
-	printf("3. Exit\n\n");
+	printf("	[Study Cafe Reservation System]\n\n");
+	printf("		Select Mode\n\n");
+	printf("		1. Admin mode\n");
+	printf("		2. User mode\n");
+	printf("		3. Exit\n\n");
 	return;
 }
 
 void print_branch_information(void){
-	printf("Branch list\n");
+	printf("		Branch list\n\n");
 	for(int i=0; i<6; i++){
 		if(br_isopen[i] == 'o')
-			printf("#%d (open)\n", i+1);
+			printf("		#%d (open)\n", i+1);
 		else
-			printf("#%d (closed)\n", i+1);
+			printf("		#%d (closed)\n", i+1);
 	}
 	return;
 }
 
 void print_room_information(int branchNum){
-	printf("Branch [%d] - Room list\n", branchNum);
-	printf(" #Room			Capacity\n");
+	printf("		Branch [%d] - Room list\n", branchNum);
+	printf(" 		#Room			Capacity\n");
 	for(int i=0; i<5; i++){
 		if(rm_isopen[branchNum-1][i] == 'o'){
-			printf("#%d (open)		%d\n", i+1, max_person[branchNum-1][i]);
+			printf("		#%d (open)		%d\n", i+1, max_person[branchNum-1][i]);
 		}
 		else{
-			printf("#%d (closed)\n", i+1);
+			printf("		#%d (closed)\n", i+1);
 		}
 	}
 	return;
@@ -183,12 +184,14 @@ void admin_mode(void){
 	while(1){
 		system("clear");
 		print_branch_information();
-		printf("\n--------------\n");
-		printf("1) Add branch\n");
-		printf("2) Edit branch\n");
-		printf("3) Remove branch\n");
-		printf("4) Back to menu\n");
-		printf(" >> ");
+		printf("\n		--------------------------\n");
+		printf("		1) Add branch\n");
+		printf("		2) Edit branch\n");
+		printf("		3) Remove branch\n");
+		printf("		4) Back to menu\n");
+		printf("\n		--------------------------\n\n");
+
+		printf("		 >> ");
 
 		input = get_input();
 
@@ -229,8 +232,8 @@ void add_branch(void){
 	while(1){
 		system("clear");
 		print_branch_information();
-		printf("\n(input \"0\" back to menu)\n");
-		printf(" input #branch to open >> ");
+		printf("\n		(input \"0\" back to menu)\n");
+		printf("		 input #branch to open >> ");
 
 		input = get_input();
 	
@@ -274,8 +277,9 @@ void edit_branch(void){
 	while(1){
 		system("clear");
 		print_branch_information();
-		printf("\n(input \"0\" back to menu)\n");
-		printf("\n input #branch to edit >> ");
+		printf("\n	----------------------------------------------------\n");
+		printf("\n		(input \"0\" back to menu)\n");
+		printf("\n		 input #branch to edit >> ");
 		input1 = get_input();
 	
 		if(input1 == 0){
@@ -300,13 +304,13 @@ void edit_branch(void){
 					system("clear");
 					print_room_information(input1);
 					printf("\n");
-					printf("1) Add study room\n");
-					printf("2) Edit study room capacity\n");
-					printf("3) Remove study room\n");
-					printf("4) Back to menu\n");
-					printf("\n");
-						
-					printf(" >> ");
+					printf("		1) Add study room\n");
+					printf("		2) Edit study room capacity\n");
+					printf("		3) Remove study room\n");
+					printf("		4) Back to menu\n");
+					printf("\n----------------------------------------------\n\n");
+					
+					printf("		 >> ");
 
 					input2 = get_input();
 	
@@ -359,7 +363,7 @@ void add_room(int brNum){
 		system("clear");
 		print_room_information(brNum);
 		printf("\n");
-		printf(" input #room to add >> ");
+		printf("		 input #room to add >> ");
 		input1 = get_input();
 		
 		if(input1 < 1 || input1 > 5){
@@ -374,7 +378,7 @@ void add_room(int brNum){
 			continue;
 		}
 
-		printf(" input Max Capacity of #%d room >> ", input1);
+		printf("		 input Max Capacity of #%d room >> ", input1);
 		input2 = get_input();
 
 		if(input2 <= 0){
@@ -425,7 +429,7 @@ void edit_room(int brNum){
 		system("clear");
 		print_room_information(brNum);
 		printf("\n");
-		printf(" input #room to edit >> ");
+		printf("		 input #room to edit >> ");
 		input1 = get_input();
 		
 		if(input1 < 1 || input1 > 5){
@@ -440,7 +444,7 @@ void edit_room(int brNum){
 			continue;
 		}
 		
-		printf(" input Capacity for #%d room >> ", input1);
+		printf("		 input Capacity for #%d room >> ", input1);
 		input2 = get_input();
 
 		if(input2 <= 0){
@@ -498,9 +502,15 @@ void remove_room(int brNum){
 		system("clear");
 		print_room_information(brNum);
 		printf("\n");
-		printf(" input #room to remove >> ");
+		printf("		(input \"0\" back to menu)\n");
+		printf("		 input #room to remove >> ");
 		input1 = get_input();
 		
+		if(input1 == 0){
+			printf("Back to menu..\n");
+			sleep(1);
+			break;
+		}
 		if(input1 < 1 || input1 > 5){
 			printf("Wrong input. Select(1~5)\n");
 			sleep(1);
@@ -594,9 +604,17 @@ void remove_branch(void){
 		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 		system("clear");
 		print_branch_information();
+		printf("	\n------------------------------------------\n");
 		printf("\n");
-		printf(" input #branch to remove >> ");
+		printf("		(input \"0\" back to menu)\n");
+		printf("		 input #branch to remove >> ");
 		brNum = input = get_input();
+
+		if(input == 0){
+			printf("Back to menu..\n");
+			sleep(1);
+			break;
+		}
 		
 		if(input < 1 || input > 6){
 			printf("Wrong input. Select(1~6)\n");
@@ -683,11 +701,19 @@ int isDigit(int c){
 
 void user_mode(void){
 	char id[30];
-	int alpha, digit, fd, isFirst, argc;
+	int alpha, digit, fd, isFirst, argc, check;
 	char* argv[10];
 	char rsbuf[34];
+	char datenow[7];
+
+	time_t t;
+	struct tm lt;
 
 	while(1){
+		t = time(NULL);
+		localtime_r(&t, &lt);
+		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
+
 		system("clear");
 		printf("Input your id(length 5~10) : ");
 		fgets(id, sizeof(id), stdin);
@@ -727,16 +753,34 @@ void user_mode(void){
 				break;
 			}
 		}
-		close(fd);
 
+
+		lseek(fd, 0, SEEK_SET);
 		if(isFirst == 1){
 			new_reservation(id);
 			break;
 		}
 		else{
-			origin_reservation(id);
+			check = 0;
+			while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
+				rsbuf[strlen(rsbuf)-1] = '\0';
+				argc = split(rsbuf, " ", argv);
+
+				if(strcmp(datenow, argv[1]) < 0){
+					check = 1;
+					break;
+				}
+			}
+			if(check == 1){
+				origin_reservation(id);
+			}
+			else{
+				new_reservation(id);
+			}
+
 			break;
 		}
+		close(fd);
 	}
 	return;
 }
@@ -747,8 +791,9 @@ void new_reservation(char* id){
 	while(1){
 		system("clear");
 		print_branch_information();
+		printf("\n		------------------------------------------------\n");
 		printf("\n(input \"0\" back to menu)\n");
-		printf(" input #branch to reserve >> ");
+		printf("		 input #branch to reserve >> ");
 		input1 = get_input();
 
 		if(input1 == 0){
@@ -772,8 +817,9 @@ void new_reservation(char* id){
 		while(1){
 			system("clear");
 			print_room_information(input1);
+			printf("\n	------------------------------------------------\n");
 			printf("\n(input \"0\" back to menu)\n");
-			printf(" input #room to reserve >> ");
+			printf("		 input #room to reserve >> ");
 			input2 = get_input();
 	
 			if(input2 == 0){
@@ -808,18 +854,19 @@ void origin_reservation(char* id){
 	while(1){
 		system("clear");
 		print_user_reservation_info(id);
-		printf("1) Edit reservation\n");
-		printf("2) Cancel reservation\n");
-		printf("3) Back to menu\n");
-		printf(" >> ");
+		printf("		1) Add reservation\n");
+		printf("		2) Edit reservation\n");
+		printf("		3) Back to menu\n");
+		printf("\n	--------------------------------\n");
+		printf("		 >> ");
 		input = get_input();
 
 		if(input == 1){
-			edit_reservation(id);
+			new_reservation(id);
 			break;
 		}
 		else if(input == 2){
-			cancel_reservation(id);
+			edit_reservation(id);
 			break;
 		}
 		else if(input == 3){
@@ -846,7 +893,7 @@ void edit_reservation(char* id){
 
 	while(1){
 		system("clear");
-		rrn = print_user_reservation_info(id);
+		print_user_reservation_info(id);
 		printf(" input #Index to edit reservation >> ");
 		idx = get_input();
 		
@@ -859,8 +906,9 @@ void edit_reservation(char* id){
 		while(1){
 			system("clear");
 			print_branch_information();
-			printf("(input \"0\" back to menu)\n");
-			printf(" input #branch to edit reservation >> ");
+			printf("\n	-----------------------------------------\n");
+			printf("\n		(input \"0\" back to menu)\n");
+			printf("		 input #branch to edit reservation >> ");
 			input1 = get_input();
 
 			if(input1 == 0){
@@ -885,8 +933,9 @@ void edit_reservation(char* id){
 			while(1){
 				system("clear");
 				print_room_information(input1);
-				printf("(input \"0\" back to menu)\n");
-				printf(" input #room to edit reservation >> ");
+				printf("\n	-----------------------------------------\n");
+				printf("\n		(input \"0\" back to menu)\n");
+				printf("		 input #room to edit reservation >> ");
 				input2 = get_input();
 				
 				if(input2 == 0){
@@ -918,7 +967,7 @@ void edit_reservation(char* id){
 }
 
 void editing_resv(int idx, char* id, int brNum, int rmNum){
-	int fd, input2, input3, input4, argc, chktime, cnt, chk;
+	int fd, input2, input3, input4, argc, chktime, cnt, chk, rrn;
 	char* argv[10];
 	char input1[7];
 	char rsbuf[34];
@@ -933,8 +982,9 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 		system("clear");
 		print_reservation_info(brNum, rmNum);
-		printf("(input \"0\" back to menu)\n");
-		printf(" input reservation date(YYMMDD) >> ");
+		printf("	\n---------------------------------------------\n");
+		printf("\n		(input \"0\" back to menu)\n");
+		printf("		 input reservation date(YYMMDD) >> ");
 
 		fgets(input1, sizeof(input1), stdin);
 		if(strlen(input1) != 6){
@@ -945,7 +995,7 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 
 		while(getchar()!='\n');
 
-		printf(" input reservation starting time >> ");
+		printf("		 input reservation starting time >> ");
 
 	 	input2 = get_input();
 
@@ -955,7 +1005,7 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 			continue;
 		}
 
-		printf(" input using time >> ");
+		printf("		 input using time >> ");
 		input3 = get_input();
 
 		if(input3 < 1 || input3 > 14){
@@ -969,7 +1019,7 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 			continue;
 		}
 
-		printf(" input #person to use >> ");
+		printf("		 input #person to use >> ");
 		input4 = get_input();
 
 		if(input4 < 1){
@@ -1002,13 +1052,8 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 				continue;
 
 
-			printf("resv.time : %d\n", resv.time);
-			printf("resv.usetime : %d\n", resv.usetime);
-			printf("atoi(argv[2]) : %d\n", atoi(argv[2]));
-			printf("atoi(argv[3]) : %d\n", atoi(argv[3]));
 			
-			if(strcmp(resv.date, argv[1]) < 0){}
-			else if(strcmp(resv.date, argv[1]) == 0){
+			if(strcmp(resv.date, argv[1]) == 0){
 				if(resv.time+resv.usetime <= atoi(argv[2]) || atoi(argv[2])+atoi(argv[3]) <= resv.time){}
 				else{
 					chktime = 0;
@@ -1019,7 +1064,6 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 		}
 
 		if(chktime == 0){
-			printf("DEBUG>..\n");
 			printf("Invalid reservation(Duplicate time).. Retry reservation\n");
 			close(fd);
 			sleep(1);
@@ -1032,12 +1076,11 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 
 			lseek(fd, 0, SEEK_SET);
 			chk = 0;
+			rrn = 0;
 			while(read(fd, tpbuf, sizeof(tpbuf)) > 0){
 				tpbuf[strlen(tpbuf)-1] = '\0';
 				argc = split(tpbuf, " ", argv);
 
-				printf("chk : %d, idx : %d\n", chk, idx);
-				sleep(1);
 				if(strcmp(datenow, argv[1]) <= 0){
 					if(!strcmp(id, argv[0])){
 						chk++;
@@ -1045,8 +1088,9 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 							break;
 					}
 				}
+				rrn++;
 			}
-			lseek(fd, (chk-1)*sizeof(tpbuf), SEEK_SET);
+			lseek(fd, (rrn)*sizeof(tpbuf), SEEK_SET);
 			write(fd, rsbuf, sizeof(rsbuf));
 
 			printf("*** Successfully edited ***\n");
@@ -1061,45 +1105,9 @@ void editing_resv(int idx, char* id, int brNum, int rmNum){
 	return;
 }
 
-void cancel_reservation(char* id){
-/*	int fd, input, rrn;
-	char rsbuf[34];
-	
-	if((fd = open(RESV_FILE, O_RDWR)) < 0){
-		fprintf(stderr, "open error in reservation.txt\n");
-		exit(1);
-	}
-
-	while(1){
-		system("clear");
-		print_user_reservation_info(id);
-		printf(" input #Index to remove reservation >> ");
-		input = get_input();
-		
-		if(input < 0){
-			printf("Invalid #index. Try other #index\n");
-			sleep(1);
-			continue;
-		}
-
-		while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
-			rsbuf[strlen(rsbuf)-1] = '\0';
-			argc = split(rsbuf, " ", argv);
-
-			if()
-
-		}
-		
-	}
 
 
-
-
-	close(fd);*/
-	return;
-}
-
-int print_user_reservation_info(char* id){
+void print_user_reservation_info(char* id){
 	time_t t;
 	struct tm lt;
 	int fd, argc, idx, rrn;
@@ -1116,35 +1124,26 @@ int print_user_reservation_info(char* id){
 		exit(1);
 	}
 
-	printf("Reservation info - [%s]\n", id);
-	printf("Index #Branch #Room #Person Date	Time	UsingTime\n");
+	printf("		Reservation info - [%s]\n\n", id);
+	printf("Index #Branch #Room #Person  Date		Time	UsingTime\n");
 	idx = 1;
-	rrn = 0;
 	while(read(fd, rsbuf, sizeof(rsbuf)) > 0){
 		rsbuf[strlen(rsbuf)-1] = '\0';
 		argc = split(rsbuf, " ", argv);
 
-		if(strcmp(datenow, argv[1]) < 0){
+		if(strcmp(datenow, argv[1]) <= 0){
 			if(!strcmp(id, argv[0])){
-				printf(" %d %d %d %d  %6s		%02d:00 ~ %02d:00	%d\n",
+				printf(" %4d %6d %4d %6d    %6s	%02d:00 ~ %02d:00 %9d\n",
 						idx, atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[1],
 						atoi(argv[2]), atoi(argv[2])+atoi(argv[3]), atoi(argv[3]));
 				idx++;
 			}
 		}
-		else if(strcmp(datenow, argv[1]) == 0){
-			if(!strcmp(id, argv[0])){
-				printf(" %d %d %d %d  %6s		%02d:00 ~ %02d:00	%d\n",
-						idx, atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[1],
-						atoi(argv[2]), atoi(argv[2])+atoi(argv[3]), atoi(argv[3]));
-				idx++;
-			}
-		}
-		rrn++;
+
 	}
 	close(fd);
-	printf("------------------------------\n");
-	return idx-1;
+	printf("------------------------------------------------------------------\n\n");
+	return;
 }
 
 
@@ -1164,10 +1163,18 @@ void add_reservation(char* id, int brNum, int rmNum){
 		sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 		system("clear");
 		print_reservation_info(brNum, rmNum);
-		printf("(input \"0\" back to menu)\n");
-		printf(" input reservation date(YYMMDD) >> ");
+		printf("	\n-------------------------------------------\n");
+		printf("\n		(input \"0\" back to menu)\n");
+		printf("		 input reservation date(YYMMDD) >> ");
 
 		fgets(input1, sizeof(input1), stdin);
+
+		if(atoi(input1) == 0){
+			printf("Back to menu..\n");
+			sleep(1);
+			return;
+		}
+
 		if(strlen(input1) != 6){
 			printf("Invalid reservation date. Format : YYMMDD\n");
 			sleep(1);
@@ -1180,9 +1187,15 @@ void add_reservation(char* id, int brNum, int rmNum){
 			continue;
 		}
 
+		if(strcmp(datenow, input1) > 0){
+			printf("Today : %s\nYou cannot reserve past time(%s)\n", datenow, input1);
+			sleep(2);
+			continue;
+		}
+
 		while(getchar()!='\n');
 
-		printf(" input reservation starting time >> ");
+		printf("		 input reservation starting time >> ");
 
 		input2 = get_input();
 
@@ -1206,7 +1219,7 @@ void add_reservation(char* id, int brNum, int rmNum){
 			continue;
 		}
 
-		printf(" input #person to use >> ");
+		printf("		 input #person to use >> ");
 		input4 = get_input();
 
 		if(input4 < 1){
@@ -1277,8 +1290,8 @@ void print_reservation_info(int brNum, int rmNum){
 	localtime_r(&t, &lt);
 	sprintf(datenow, "%02d%02d%02d", lt.tm_year+1900-2000, lt.tm_mon+1, lt.tm_mday);
 
-	printf("[%d] branch - [%d] room reservation list\n", brNum, rmNum);
-	printf("	date		time\n");
+	printf("	[%d] branch - [%d] room reservation list\n\n", brNum, rmNum);
+	printf("	  date			 time\n");
 
 	if((fd = open(RESV_FILE, O_RDONLY)) < 0){
 		fprintf(stderr, "open error in reservation.txt\n");
@@ -1290,7 +1303,7 @@ void print_reservation_info(int brNum, int rmNum){
 
 		if(strcmp(datenow, argv[1]) < 0){
 			if(brNum == atoi(argv[4]) && rmNum == atoi(argv[5])){
-				printf("%6s		%02d:00 ~ %02d:00\n", 
+				printf("	%6s		%02d:00 ~ %02d:00\n", 
 						argv[1], atoi(argv[2]), atoi(argv[2])+atoi(argv[3]));
 			}
 		}
@@ -1301,7 +1314,7 @@ void print_reservation_info(int brNum, int rmNum){
 			}
 		}		
 	}
-	printf("\n-------------------------\n");
+	printf("\n---------------------------------------------------\n\n");
 	close(fd);
 	return;
 }
