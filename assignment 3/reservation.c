@@ -1205,7 +1205,7 @@ void add_reservation(char* id, int brNum, int rmNum){
 			continue;
 		}
 
-		printf(" input using time >> ");
+		printf("		 input using time >> ");
 		input3 = get_input();
 
 		if(input3 < 1 || input3 > 14){
